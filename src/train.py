@@ -1,6 +1,7 @@
 from .dataset import prepare_dataset
 from .models.cgan import CGANModel
 from .models.cvae import CVAEModel
+from .models.cvaegan import CVAEGANModel
 
 import torch
 import pytorch_lightning as pl
@@ -34,6 +35,8 @@ def train(
         model = CVAEModel(**model_params)
     elif model_name == "CGAN":
         model = CGANModel(**model_params)
+    elif model_name == "CVAEGAN":
+        model = CVAEGANModel(**model_params)
     else:
         raise AttributeError(f"Unsupported model: {model_name}")
 
