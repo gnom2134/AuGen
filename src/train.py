@@ -11,11 +11,11 @@ def train(
     dataset_name: str,
     imgpath: str,
     csvpath: str,
-    model_name: str = "CVAE",
+    model_name: str,
+    model_params: Dict[str, Any],
     save_model_path: str = None,
-    model_params: Dict[str, Any] = None,
     trainer_params: Dict[str, Any] = None,
-    wandb_logger_params: DIct[str, Any] = None,
+    wandb_logger_params: Dict[str, Any] = None,
     batch_size: int = 8
 ):
     if model_params is None:
