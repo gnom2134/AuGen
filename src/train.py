@@ -8,25 +8,19 @@ import pytorch_lightning as pl
 from typing import Dict, Any
 
 
-def train(
-    dataset_name: str,
-    imgpath: str,
-    csvpath: str,
+def train_with_dataset(
+    dataset: torch.utils.data.Dataset,
     model_name: str,
     model_params: Dict[str, Any],
     save_model_path: str = None,
     trainer_params: Dict[str, Any] = None,
     wandb_logger_params: Dict[str, Any] = None,
-    batch_size: int = 8
+    batch_size: int = 8,
 ):
-    if model_params is None:
-        model_params = {}
     if trainer_params is None:
         trainer_params = {}
     if wandb_logger_params is None:
         wandb_logger_params = {}
-
-    dataset = prepare_dataset(dataset_name, imgpath, csvpath)
 
     train_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size)
 
@@ -49,3 +43,21 @@ def train(
         torch.save(model.state_dict(), save_model_path)
 
     return model
+
+
+def train(
+    dataset_name: str,
+    imgpath: str,
+    csvpath: str,
+    model_name: str,
+    model_params: Dict[str, Any],
+    save_model_path: str = None,
+    trainer_params: Dict[str, Any] = None,
+    wandb_logger_params: Dict[str, Any] = None,
+    batch_size: int = 8,
+):
+    dataset = prepare_dataset(dataset_name, imgpath, csvpath)
+
+    return train_with_dataset(
+        dataset, model_name, model_params, save_model_path, trainer_params, wandb_logger_params, batch_size
+    )
