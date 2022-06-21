@@ -1,5 +1,6 @@
 import torchxrayvision as xrv
 import torchvision as trv
+import numpy as np
 import torch
 import cv2
 import os
@@ -44,16 +45,16 @@ class AugmentedDataset(torch.utils.data.Dataset):
             images = train_batch["img"]
             labels = train_batch["lab"]
             for i in range(images.shape[0]):
-                img = images[i].cpu().detach().numpy().squeeze(0)
-                img_path = os.path.join(augmented_dataset_dir, f"real_image_{counter}_label_{labels[i]}.jpg")
+                img = (images[i].cpu().detach().numpy().squeeze(0) * 255).astype(np.uint8)
+                img_path = os.path.join(augmented_dataset_dir, f"real_image_{counter}_label_{labels[i].item()}.jpg")
                 self.label_df["image"].append(img_path)
-                self.label_df["label"].append(labels[i])
+                self.label_df["label"].append(labels[i].item())
                 cv2.imwrite(img_path, img)
                 counter += 1
 
         for i in range(counter):
             label = 0 if i < counter // 2 else 1
-            img = model.sample_random(label, size=1).cpu().detach().numpy().squeeze(0)
+            img = (model.sample_random(label, size=1).cpu().detach().numpy().squeeze((0, 1)) * 255).astype(np.uint8)
             img_path = os.path.join(augmented_dataset_dir, f"fake_image_{i}_label_{label}.jpg")
             self.label_df["image"].append(img_path)
             self.label_df["label"].append(label)
@@ -62,7 +63,7 @@ class AugmentedDataset(torch.utils.data.Dataset):
     def __len__(self):
         return len(self.label_df["image"])
 
-    def __get_item__(self, idx):
+    def __getitem__(self, idx):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
@@ -75,6 +76,6 @@ class AugmentedDataset(torch.utils.data.Dataset):
             imgs.append(cv2.imread(self.label_df["image"][i]))
             labels.append(self.label_df["label"][i])
 
-        sample = {'images': imgs, 'labels': labels}
+        sample = {'images': torch.from_numpy(np.stack(imgs)), 'labels': torch.from_numpy(np.stack(labels))}
 
         return sample

@@ -1,6 +1,6 @@
 import torch
 
-from typing import Dict, Any
+from typing import Dict, Any, Tuple
 
 from ..dataset import prepare_dataset, AugmentedDataset
 from ..train import train_with_dataset
@@ -39,7 +39,7 @@ def improvement_experiment(
     cls_wandb_logger_params: Dict[str, Any] = None,
     batch_size: int = 8,
     test_ratio: float = 0.1,
-):
+) -> Tuple[torch.nn.Module, torch.nn.Module, float]:
     xrv_dataset = prepare_dataset(dataset_name, imgpath, csvpath)
 
     train_set, test_set = torch.utils.data.random_split(

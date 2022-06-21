@@ -104,7 +104,7 @@ class CVAEModel(pl.LightningModule):
     def forward(self, label: int):
         noise_mu = torch.randn(1, self.latent_dim).to(self.device)
         noise_log_std = torch.randn(1, self.latent_dim).to(self.device)
-        res = self.gen((noise_mu, noise_log_std, torch.IntTensor([[label]]).to(self.device)))
+        res = self.dec((noise_mu, noise_log_std, torch.IntTensor([[label]]).to(self.device)))
         return res
 
     def configure_optimizers(self):
@@ -125,7 +125,7 @@ class CVAEModel(pl.LightningModule):
     def sample_random(self, label, size=1):
         noise_mu = torch.randn(size, self.latent_dim).to(self.device)
         noise_log_std = torch.randn(size, self.latent_dim).to(self.device)
-        res = self.gen((noise_mu, noise_log_std, torch.IntTensor([[label]] * size).to(self.device)))
+        res = self.dec((noise_mu, noise_log_std, torch.IntTensor([[label]] * size).to(self.device)))
         return res
 
     def training_epoch_end(self, training_step_outputs):
