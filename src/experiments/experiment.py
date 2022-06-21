@@ -57,7 +57,7 @@ def improvement_experiment(
     )
 
     augmented_dataset = AugmentedDataset(
-        torch.utils.data.DataLoader(dataset, batch_size=batch_size), gen_model, augmented_dataset_dir
+        torch.utils.data.DataLoader(train_set, batch_size=batch_size), gen_model, augmented_dataset_dir
     )
 
     cls_model = train_with_dataset(

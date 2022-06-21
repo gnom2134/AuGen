@@ -1,10 +1,9 @@
 from .dataset import prepare_dataset
-from .models.cgan import CGANModel
-from .models.cvae import CVAEModel
-from .models.cvaegan import CVAEGANModel
+from .models import CGANModel, CVAEModel, CVAEGANModel, ResNetModel
 
 import torch
 import pytorch_lightning as pl
+import torchvision as trv
 from typing import Dict, Any
 
 
@@ -31,6 +30,12 @@ def train_with_dataset(
         model = CGANModel(**model_params)
     elif model_name == "CVAEGAN":
         model = CVAEGANModel(**model_params)
+    elif model_name == "ResNet34":
+        resnet_base = trv.models.resnet34(pretrained=False)
+        model = ResNetModel(resnet_base)
+    elif model_name == "ResNet50":
+        resnet_base = trv.models.resnet50(pretrained=False)
+        model = ResNetModel(resnet_base)
     else:
         raise AttributeError(f"Unsupported model: {model_name}")
 

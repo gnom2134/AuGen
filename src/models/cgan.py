@@ -132,6 +132,11 @@ class CGANModel(pl.LightningModule):
 
         return D_total_loss
 
+    def sample_random(self, label, size=1):
+        noise_vector = torch.randn(size, self.latent_dim).to(self.device)
+        res = self.gen((noise_vector, torch.IntTensor([[label]] * size).to(self.device)))
+        return res
+
     def training_epoch_end(self, training_step_outputs):
         noise_vector = torch.randn(1, self.latent_dim).to(self.device)
         res = self.gen((noise_vector, torch.IntTensor([[1]]).to(self.device)))

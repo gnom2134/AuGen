@@ -118,14 +118,15 @@ class CVAEModel(pl.LightningModule):
         restored_img = self.dec((mu, log_std, real_labels))
 
         loss = self.loss(real_data, restored_img)
-
-        if self.trainer.is_last_batch:
-            sch = self.lr_schedulers()
-            sch.step()
-
         self.log("vae_loss", loss)
 
         return loss
+
+    def sample_random(self, label, size=1):
+        noise_mu = torch.randn(size, self.latent_dim).to(self.device)
+        noise_log_std = torch.randn(size, self.latent_dim).to(self.device)
+        res = self.gen((noise_mu, noise_log_std, torch.IntTensor([[label]] * size).to(self.device)))
+        return res
 
     def training_epoch_end(self, training_step_outputs):
         noise_mu = torch.randn(1, self.latent_dim).to(self.device)
