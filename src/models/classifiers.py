@@ -13,7 +13,7 @@ class ResNetModel(pl.LightningModule):
         self.lr = 1e-4
 
     def forward(self, x):
-        return self.resnet_model(x)
+        return torch.sigmoid(self.resnet_model(x))
 
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=self.lr)

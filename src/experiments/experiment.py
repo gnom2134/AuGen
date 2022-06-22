@@ -10,8 +10,7 @@ from ..models import CVAEGANModel
 
 def accuracy(
     model: torch.nn.Module,
-    test_loader: torch.utils.data.DataLoader
-):
+    test_loader: torch.utils.data.DataLoader):
     good = 0
     all_ = 0
     for batch in test_loader:
@@ -44,8 +43,10 @@ def improvement_experiment(
 ) -> Tuple[torch.nn.Module, torch.nn.Module, float]:
     xrv_dataset = prepare_dataset(dataset_name, imgpath, csvpath)
 
+    seed=42
     train_set, test_set = torch.utils.data.random_split(
-        xrv_dataset, [len(xrv_dataset) - int(len(xrv_dataset) * test_ratio), int(len(xrv_dataset) * test_ratio)]
+        xrv_dataset, [11000, 1954],
+        generator=torch.Generator().manual_seed(seed)
     )
 
     #gen_model = train_with_dataset(

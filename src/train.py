@@ -44,8 +44,11 @@ def train_with_dataset(
     trainer = pl.Trainer(**trainer_params)
     trainer.fit(model, train_loader)
 
-    if save_model_path is not None:
-        torch.save(model.state_dict(), save_model_path)
+    try:
+        if save_model_path is not None:
+            torch.save(model.state_dict(), save_model_path)
+    except FileNotFoundError:
+        print('БЕДА')
 
     return model
 

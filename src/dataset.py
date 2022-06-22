@@ -56,7 +56,7 @@ class AugmentedDataset(torch.utils.data.Dataset):
         for i in tqdm(range(counter)):
             label = 0 if i < counter // 2 else 1
             img = (model.sample_random(label, size=1).cpu().detach().numpy().squeeze(0))
-            img = (255*(img - np.min(img))/np.ptp(img)).astype(np.uint8).squeeze()
+            img = (np.clip(255*img, 0, 255)).astype(np.uint8).squeeze()
             img_path = os.path.join(augmented_dataset_dir, f"fake_image_{i}_label_{label}.jpg")
             self.label_df["img"].append(img_path)
             self.label_df["lab"].append(label)
