@@ -1,5 +1,6 @@
 import torch
 import pytorch_lightning as pl
+import numpy as np
 
 
 class ResNetModel(pl.LightningModule):
@@ -19,16 +20,16 @@ class ResNetModel(pl.LightningModule):
 
     def training_step(self, train_batch, batch_idx):
         y = train_batch["lab"]
-        x = train_batch["img"]
+        x = train_batch["img"].float()
         y_pred = self.resnet_model(x)
-        loss = self.loss(y_pred, y)
+        loss = self.loss(y_pred, y.float())
         self.log('train_loss', loss)
         return loss
 
     def validation_step(self, val_batch, batch_idx):
         y = val_batch["lab"]
-        x = val_batch["img"]
+        x = val_batch["img"].float()
         y_pred = torch.sigmoid(self.resnet_model(x))
-        loss = self.loss(y_pred, y)
+        loss = self.loss(y_pred, y.float())
         self.log('val_loss', loss)
         return loss

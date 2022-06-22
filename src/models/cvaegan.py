@@ -37,7 +37,7 @@ class VAE(nn.Module):
         )
 
     def noise_reparameterize(self, mean, log_var):
-        eps = torch.randn(mean.shape).to(self.device)
+        eps = torch.randn(mean.shape)
         z = mean + eps * torch.exp(log_var)
         return z
 
@@ -132,7 +132,7 @@ class CVAEGANModel(pl.LightningModule):
         loss_real = self.criterion(output, real_label)
 
         z = torch.randn(x.shape[0], self.vae.latent_dim + self.classes_dim, device=self.device)
-        fake_data = self.vae.decoder(z)
+        fake_data = self.vae.decoder(z).to(self.device)
         output = self.discriminator(fake_data.detach())
         loss_fake = self.criterion(output, fake_label)
 
@@ -148,7 +148,7 @@ class CVAEGANModel(pl.LightningModule):
         z, mean, log_std = self.vae.encoder(x)
 
         z = torch.cat([z, y], 1)
-        recon_data = self.vae.decoder(z)
+        recon_data = self.vae.decoder(z).to(self.device)
         vae_loss1 = self.loss_function(recon_data, x, mean, log_std)
 
         output = self.discriminator(recon_data)
@@ -163,6 +163,14 @@ class CVAEGANModel(pl.LightningModule):
         self.log('vae loss', v_loss)
 
         return v_loss
+
+    def sample_random(self, label, size=1):
+        noise_mu = torch.randn(size, self.latent_dim).to(self.device)
+        noise_log_std = torch.randn(size, self.latent_dim).to(self.device)
+        z = self.vae.noise_reparameterize(noise_mu, noise_log_std)
+        y = torch.IntTensor([[label]] * size).to(self.device)
+        res = self.vae.decoder(torch.hstack((z, y)))
+        return res
 
     def training_step(self, batch, batch_idx, optimizer_idx):
         X, y = batch['img'], batch['lab']

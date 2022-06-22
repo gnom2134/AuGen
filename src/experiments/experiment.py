@@ -4,6 +4,8 @@ from typing import Dict, Any, Tuple
 
 from ..dataset import prepare_dataset, AugmentedDataset
 from ..train import train_with_dataset
+from ..models import CVAEGANModel
+
 
 
 def accuracy(
@@ -46,15 +48,18 @@ def improvement_experiment(
         xrv_dataset, [len(xrv_dataset) - int(len(xrv_dataset) * test_ratio), int(len(xrv_dataset) * test_ratio)]
     )
 
-    gen_model = train_with_dataset(
-        train_set,
-        gen_model_name,
-        gen_model_params,
-        gen_save_model_path,
-        gen_trainer_params,
-        gen_wandb_logger_params,
-        batch_size,
-    )
+    #gen_model = train_with_dataset(
+    #    train_set,
+    #    gen_model_name,
+    #    gen_model_params,
+    #    gen_save_model_path,
+    #    gen_trainer_params,
+    #    gen_wandb_logger_params,
+    #    batch_size,
+    #)
+    gen_model = CVAEGANModel(**gen_model_params)
+    gen_model.load_state_dict(torch.load("D:/programs/projects/AuGen/data/CVAEGAN_on_siim_dataset.state",
+                                         map_location= 'cpu'))
 
     augmented_dataset = AugmentedDataset(
         torch.utils.data.DataLoader(train_set, batch_size=batch_size), gen_model, augmented_dataset_dir

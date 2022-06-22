@@ -3,6 +3,7 @@ import torchvision as trv
 import numpy as np
 import torch
 import cv2
+from tqdm import tqdm
 import os
 
 
@@ -37,31 +38,32 @@ class AugmentedDataset(torch.utils.data.Dataset):
         super().__init__()
         counter = 0
         self.label_df = {
-            "image": [],
-            "label": []
+            "img": [],
+            "lab": []
         }
 
-        for train_batch in xrv_dataset_loader:
+        for j, train_batch in tqdm(enumerate(xrv_dataset_loader)):
             images = train_batch["img"]
             labels = train_batch["lab"]
             for i in range(images.shape[0]):
                 img = (images[i].cpu().detach().numpy().squeeze(0) * 255).astype(np.uint8)
                 img_path = os.path.join(augmented_dataset_dir, f"real_image_{counter}_label_{labels[i]}.jpg")
-                self.label_df["image"].append(img_path)
-                self.label_df["label"].append(labels[i])
+                self.label_df["img"].append(img_path)
+                self.label_df["lab"].append(int(labels[i].item()))
                 cv2.imwrite(img_path, img)
                 counter += 1
 
-        for i in range(counter):
+        for i in tqdm(range(counter)):
             label = 0 if i < counter // 2 else 1
-            img = (model.sample_random(label, size=1).cpu().detach().numpy().squeeze((0, 1)) * 255).astype(np.uint8)
+            img = (model.sample_random(label, size=1).cpu().detach().numpy().squeeze(0))
+            img = (255*(img - np.min(img))/np.ptp(img)).astype(np.uint8).squeeze()
             img_path = os.path.join(augmented_dataset_dir, f"fake_image_{i}_label_{label}.jpg")
-            self.label_df["image"].append(img_path)
-            self.label_df["label"].append(label)
+            self.label_df["img"].append(img_path)
+            self.label_df["lab"].append(label)
             cv2.imwrite(img_path, img)
 
     def __len__(self):
-        return len(self.label_df["image"])
+        return len(self.label_df["img"])
 
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
@@ -73,9 +75,9 @@ class AugmentedDataset(torch.utils.data.Dataset):
         imgs = []
         labels = []
         for i in idx:
-            imgs.append(cv2.imread(self.label_df["image"][i]))
-            labels.append(self.label_df["label"][i])
+            imgs.append(cv2.imread(self.label_df["img"][i], 0))
+            labels.append(self.label_df["lab"][i])
 
-        sample = {'images': torch.from_numpy(np.stack(imgs)), 'labels': torch.from_numpy(np.stack(labels))}
+        sample = {'img': torch.from_numpy(np.stack(imgs)), 'lab': torch.from_numpy(np.stack(labels))}
 
         return sample
