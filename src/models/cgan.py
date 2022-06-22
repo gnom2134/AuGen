@@ -94,7 +94,7 @@ class CGANModel(pl.LightningModule):
         return res
 
     def configure_optimizers(self):
-        return torch.optim.Adam(self.disc.parameters(), lr=1e-3), torch.optim.Adam(self.gen.parameters(), lr=1e-1)
+        return torch.optim.Adam(self.disc.parameters(), lr=1e-3), torch.optim.Adam(self.gen.parameters(), lr=1e-3)
 
     def training_step(self, train_batch, batch_idx):
         d_opt, g_opt = self.optimizers()
