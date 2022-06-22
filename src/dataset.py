@@ -76,6 +76,6 @@ class AugmentedDataset(torch.utils.data.Dataset):
             imgs.append(cv2.imread(self.label_df["image"][i], 0))
             labels.append(self.label_df["label"][i])
 
-        sample = {'images': torch.from_numpy(np.stack(imgs)), 'labels': torch.from_numpy(np.stack(labels))}
+        sample = {'img': torch.from_numpy(np.stack(imgs)), 'lab': torch.from_numpy(np.stack(labels))}
 
         return sample
